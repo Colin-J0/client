@@ -1,25 +1,56 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import "./App.css";
+import ApolloClient from "apollo-boost";
+import { graphql, ApolloProvider } from "react-apollo";
+import gql from "graphql-tag"
+
+
+
+const client = new ApolloClient({
+  uri: "http://localhost:4000/graphql"
+});
+
+const channelsListQuery = gql`{
+  users {
+    id,name
+  }
+}`;
+
+
+
+const ChannelsList = ({ data: { loading, error, users } }) => {
+  if (loading) {
+    return <p> Loading... </p>;
+  }
+
+  if (error) {
+    return <p> {error.message} </p>;
+  }
+
+  return (
+    <ul>
+      {users.map(c => (
+        <li key={c.id}>
+          <p>{c.id}</p>
+          <p>{c.name}</p>
+
+        </li>
+      ))}
+    </ul>
+  );
+};
+const ChannelsListWithData = graphql(channelsListQuery)(ChannelsList);
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ApolloProvider client={client}>
+      <div className="App">
+        <header className="App-header">
+          {/* {ChannelsListWithData()} */}
+          <ChannelsListWithData ></ChannelsListWithData>
+        </header>
+      </div>
+    </ApolloProvider>
   );
 }
 
